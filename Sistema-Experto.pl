@@ -1,7 +1,24 @@
-# Sistema Experto para Psicología Deportiva
+% Sistema Experto para Psicología Deportiva
+% Base de Conocimiento 
+% Reglas
+ask(Attr, Val):-
+  write(Attr:Val),
+  write('? '),
+  read(si).
 
-# Base de Conocimiento 
+manifiesta(X):-ask(manifiesta,X).
 
-# Reglas 
+diagnostico(insatisfaccion_laboral):-
+    manifiesta(poco_interes_actividades),
+    manifiesta(no_esfuerzo),
+    manifiesta(exceso_confianza),
+    manifiesta(falta_confianza),
+    manifiesta(no_acepta_errores),
+    manifiesta(no_establece_objetivos).
 
-# Interfaz Gráfica 
+diagnostico(posible_insatisfaccion_laboral):-
+    manifiesta(poco_interes_actividades),
+    manifiesta(no_esfuerzo),
+    manifiesta(exceso_confianza).
+
+
