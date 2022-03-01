@@ -1,17 +1,67 @@
-% Sistema Experto para Psicología Deportiva
+% *****************************************************************************
+% SISTEMA EXPERTO PARA LA PSICOLOGIA DEPORTIVA
+% *****************************************************************************
+:- set_prolog_flag(unknown,fail).
 
+% =============================================================================
 % Logica General 
-ask(Attr, Val):-
-  write(Attr:Val),
-  write('? '),
-  read(si).
+% =============================================================================
 
-manifiesta(X):-ask(manifiesta,X).
+% Pregunta al usuario
+pregunta(Attr, Val):-
+  conocido(si, Attr, Val), % recuerda las respuestas
+  !.
 
+pregunta(Attr, Val):-
+  conocido(_, Attr, Val), % recuerda las respuestas
+  !,
+  fail.
+
+pregunta(Attr, Val):-
+  write(Attr), write(': '), write(Val),
+  write('? (si/no): '),
+  read(S),
+  asserta(known(Y, Attr, Val)),
+  S == si.
+
+manifiesta(X):-
+  pregunta(manifiesta, X).
+
+% Procesa el resultado
+recomendaciones(X, R):- 
+  solucion(X,P),
+  procesar(P, 1).
+
+procesar([], N).
+procesar([H|T], N):-
+  imprimir(H, N),
+  R is N+1,
+  procesar(T, R).
+
+imprimir(E, N):-
+  write('Recomendacion #'), write(N), write(': '),
+  obtener_txt(E, T),
+  write(T), nl.
+
+% Principal
+iniciar:-
+  writeln('=============================================================='),
+  writeln('OBTENER DIAGNOSTICO'),
+  writeln('=============================================================='),
+  diagnostico(X), nl,
+  obtener_txt(X, T),
+  write('DIAGNOSTICO ===> '), write(T), nl, nl,
+  writeln('=============================================================='),
+  writeln('RECOMENDACIONES'),
+  writeln('=============================================================='),  
+  recomendaciones(X, R).
+
+% =============================================================================
 % Base de Conocimiento 
-% Hechos y reglas (Diagnosticos)
+% =============================================================================
 
-diagnostico(transtorno_estado_animo | problemas_estres):-
+% Hechos y reglas (Diagnosticos)
+diagnostico(transtorno_animo-problemas_estres):-
   manifiesta(falta_concentracion);
   manifiesta(impaciencia),
   manifiesta(alta_irritibilidad),
@@ -30,12 +80,12 @@ diagnostico(discriminacion):-
   manifiesta(conflictos_etnicos);
   manifiesta(conflictos_sexualidad).
 
-diagnostico(falta_motivacion | insatisfaccion_laboral):-
-    manifiesta(poco_interes_actividades),
-    manifiesta(poco_esfuerzo);
-    manifiesta(falta_confianza);
-    manifiesta(exceso_confianza),
-    manifiesta(no_aceptar_errores).
+diagnostico(falta_motivacion-insatisfaccion_laboral):-
+  manifiesta(poco_interes_actividades),
+  manifiesta(poco_esfuerzo);
+  manifiesta(falta_confianza);
+  manifiesta(exceso_confianza),
+  manifiesta(no_aceptar_errores).
 
 diagnostico(problemas_autoestima):-
   manifiesta(no_establece_objetivos);
@@ -65,42 +115,110 @@ diagnostico(problemas_conducta):-
   manifiesta(falta_sentido_pertenencia).
 
 % Hechos y Reglas (Recomendaciones)
-solucion(transtorno_animo-problemas_estres,equilibrio_obligaciones).
-solucion(transtorno_animo-problemas_estres,acudir_profesional).
-solucion(transtorno_animo-problemas_estres,aplicar_tecnica_relajacion).
-solucion(transtorno_animo-problemas_estres,realizar_terapia_ocupacional).
-solucion(transtorno_animo-problemas_estres,aplicar_tecnicas_cognitivo-conductuales).
-solucion(transtorno_animo-problemas_estres,aplicar_tecnicas_desviacion_atencion).
+solucion(
+  transtorno_animo-problemas_estres,
+  [
+    equilibrio_obligaciones, 
+    acudir_profesional, 
+    aplicar_tecnica_relajacion, 
+    realizar_terapia_ocupacional, 
+    aplicar_tecnicas_cognitivo-conductuales,
+    aplicar_tecnicas_desviacion_atencion
+  ]
+).
 
-solucion(problemas_estres,equilibrio_obligaciones).
-solucion(problemas_estres,acudir_profesional).
-solucion(problemas_estres,aplicar_tecnica_relajacion).
-solucion(problemas_estres,realizar_terapia_ocupacional).
-solucion(problemas_estres,aplicar_tecnicas_cognitivo-conductuales).
-solucion(problemas_estres,aplicar_tecnicas_desviacion_atencion).
+solucion(
+  problemas_estres,
+  [
+    equilibrio_obligaciones,
+    acudir_profesional,
+    aplicar_tecnica_relajacion,
+    realizar_terapia_ocupacional,
+    aplicar_tecnicas_cognitivo-conductuales,
+    aplicar_tecnicas_desviacion_atencion
+  ]
+).
 
-solucion(discriminacion,equilibrio_obligaciones).
-solucion(discriminacion,acudir_profesional).
-solucion(discriminacion,aplicar_tecnica_relajacion).
-solucion(discriminacion,realizar_terapia_ocupacional).
-solucion(discriminacion,aplicar_tecnicas_cognitivo-conductuales).
-solucion(discriminacion,aplicar_tecnicas_desviacion_atencion).
+solucion(
+  discriminacion,
+  [
+    equilibrio_obligaciones,
+    acudir_profesional,
+    aplicar_tecnica_relajacion,
+    realizar_terapia_ocupacional,
+    aplicar_tecnicas_cognitivo-conductuales,
+    aplicar_tecnicas_desviacion_atencion
+  ]
+).
 
-solucion(falta_motivacion-insatisfaccion_laboral,aplicar_tecnicas_motivacion).
-solucion(falta_motivacion-insatisfaccion_laboral,tener_buena_psicoeducacion).
+solucion(
+  falta_motivacion-insatisfaccion_laboral,
+  [
+    aplicar_tecnicas_motivacion,
+    tener_buena_psicoeducacion
+  ]
+).
 
-solucion(problemas_autoestima,preparacion_ante_fracasos_futbolisticos).
-solucion(problemas_autoestima,preparacion_manejo_emociones).
+solucion(
+  problemas_autoestima,
+  [
+    preparacion_ante_fracasos_futbolisticos,
+    preparacion_manejo_emociones
+  ]
+).
 
-solucion(incapacidad_afrontar_adversidad,preparacion_ante_fracasos_futbolisticos).
-solucion(incapacidad_afrontar_adversidad,preparacion_manejo_emociones).
+solucion(
+  incapacidad_afrontar_adversidad,
+  [
+    preparacion_ante_fracasos_futbolisticos,
+    preparacion_manejo_emociones
+  ]
+).
 
-solucion(crisis_panico,felicitar_luego_corregir).
-solucion(crisis_panico,preparacion_afrontar_situaciones_externas).
-solucion(crisis_panico,reorganizacion_cognitiva).
+solucion(
+  crisis_panico,
+  [
+    felicitar_luego_corregir,
+    preparacion_afrontar_situaciones_externas,
+    reorganizacion_cognitiva
+  ]
+).
 
-solucion(problemas_conducta,establecer_codigos_etica).
-solucion(problemas_conducta,establecer_sanciones).
-solucion(problemas_conducta,trabajar_habilidades_sociales).
+solucion(
+  problemas_conducta,
+  [
+    establecer_codigos_etica,
+    establecer_sanciones,
+    trabajar_habilidades_sociales
+  ]
+).
 
-recomendaciones(X,Y):- solucion(X,Y).
+% =============================================================================
+% Textos para impresion
+% =============================================================================
+obtener_txt(transtorno_animo-problemas_estres, "Transtorno de animo y/o problemas de estres").
+obtener_txt(problemas_estres, "Problemas de estres").
+obtener_txt(discriminacion, "Discriminacion").
+obtener_txt(falta_motivacion-insatisfaccion_laboral, "Falta de motivacion y/o insatisfaccion laboral").
+obtener_txt(problemas_autoestima, "Problemas de autoestima").
+obtener_txt(incapacidad_afrontar_adversidad, "Incapacidad para afrontar adversidades").
+obtener_txt(crisis_panico, "Crisis de panico").
+obtener_txt(problemas_conducta, "Problemas de conducta").
+
+obtener_txt(equilibrio_obligaciones, "Equilibrio de obligaciones").
+obtener_txt(acudir_profesional, "Acudir a un profesional").
+obtener_txt(aplicar_tecnica_relajacion, "Aplicar tecnicas de relajacion").
+obtener_txt(realizar_terapia_ocupacional, "Realizar terapia ocupacional").
+obtener_txt(aplicar_tecnicas_cognitivo-conductuales, "Aplicar tecnicas cognitivo-conductuales").
+obtener_txt(aplicar_tecnicas_desviacion_atencion, "Aplicar tecnicas de desviacion de atencion").
+obtener_txt(aplicar_tecnicas_motivacion, "Aplicar tecnicas de motivacion").
+obtener_txt(tener_buena_psicoeducacion, "Tener buena psicoeducacion").
+obtener_txt(preparacion_ante_fracasos_futbolisticos, "Preparacion ante fracasos futbolisticos").
+obtener_txt(preparacion_manejo_emociones, "Preparacion para el manejo de emociones").
+obtener_txt(felicitar_luego_corregir, "Felicitar y luego corregir al jugador").
+obtener_txt(preparacion_afrontar_situaciones_externas, "Preparacion para afrontar situaciones externas").
+obtener_txt(reorganizacion_cognitiva, "Reorganizacion cognitiva").
+obtener_txt(establecer_codigos_etica, "Establecer codigos de etica").
+obtener_txt(establecer_sanciones, "Establecer sanciones").
+obtener_txt(trabajar_habilidades_sociales, "Trabajar habilidades sociales").
+obtener_txt(N, "No definido").
