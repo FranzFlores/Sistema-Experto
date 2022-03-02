@@ -24,12 +24,13 @@ pregunta(Attr, Val):-
   asserta(known(Y, Attr, Val)),
   S == si.
 
+% Preguntas
 manifiesta(X):-
   pregunta(manifiesta, X).
 
 % Procesa el resultado
-recomendaciones(X, R):- 
-  solucion(X,P),
+recomendaciones(X):- 
+  solucion(X, P),
   procesar(P, 1).
 
 procesar([], N).
@@ -54,7 +55,7 @@ iniciar:-
   writeln('=============================================================='),
   writeln('RECOMENDACIONES'),
   writeln('=============================================================='),  
-  recomendaciones(X, R).
+  recomendaciones(X).
 
 % =============================================================================
 % Base de Conocimiento 
